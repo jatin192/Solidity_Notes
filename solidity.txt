@@ -1,0 +1,675 @@
+1.sol  ->   solidity compiler        -> ABI
+                                         -> Bytecode -> deploy on Ethereum Blockchain
+
+Hexadecimal                          -> 0 to 9
+                                          -> A to F
+
+ABI (application Binary Interface) 
+                                        -> is the standard way to interact with contracts in the Ethereum ecosystem, 
+                                        -> both from outside the blockchain and for contract-to-contract interaction
+
+
+Bytecode to Opcode Disassembler(https://etherscan.io/opcode-tool)   
+                                                                    -> you have to write 0x... before Bytecode to get Opcode 
+                                                                    -> (0x..donate Hexadecimal)
+
+
+opcodes(https://ethervm.io/)
+                                 -> Instruction that are given to EVM have to exicute
+
+Imp. Point :
+Bytecode is Public in readable form.
+ABI and Bytecode cannot generated without source code 
+_________________________________________________
+                            Network Id           |    
+Mainnet                         1                |   
+Testnet                    sepolia(11155111)     |
+__________________________________________________        
+
+
+
+Injected Web3           -> deploy sc on Testnet/Mainnet(Metamask)
+Web3 Provider           -> deploy sc on remote node(Ganache)
+
+programming language
+solidity                         statically typed language (uint a =1,string str ="jatin")
+python                          dynamic typed language    (a=1,str="jatin")
+
+____________________________________________________________________________________________________________________
+In solidity 
+    -> we have to write which datatype we have to returrn like 
+                               ->funtion func_1()public view returns(string memory)
+    
+    -> return 2 or more values 
+                              ->function get() public view returns(string memory,uint)
+                                {
+                                    return (name,age);
+                                }
+
+    ->public 
+            -> automatically getter function created
+            -> no need getter function
+            -> uint public a;
+
+    -> By default variable visibility is private
+
+    -> No Null concept 
+            -> uint a; // by default a = 0   
+________________________________________________________________________________________________________________________________________________
+
+    ->state variable
+            -> Permanently stored in contract strorage (store on Blockchain)
+            -> we have to pay gas fee to store (cost gas expensive..)
+
+            3 ways to Initilize the state variable
+                -> uint a=1; 
+                -> uint a;
+                   constructor()
+                   {
+                        a=1;
+                   }
+                -> uint a;
+                   function set() public
+                   {
+                        a=1;
+                   } 
+                
+                -> Wrong
+                   uint a;
+                   a=1;  //give Error
+                
+________________________________________________________________________________________________________________________________________________
+
+    -> pure function 
+                ->  a function that doesn't read or modify the state variables 
+                ->  It can only use local variables that are declared in the function and the arguments that are passed to the function to compute or return a value
+                ->  function func_1()pure returns(uint)
+                    {
+                        uint a=7;
+                        return a;
+                    }
+
+                ->Wrong
+                    uint a;
+                    function func_1()pure returns(uint)
+                    {
+                        return a; //give error
+                    }
+
+________________________________________________________________________________________________________________________________________________
+
+    -> view function
+                ->  a function that can read but can't modify the state variables
+________________________________________________________________________________________________________________________________________________
+
+    -> local variable
+                -> store in stack
+                -> Don't cost gas
+                -> But some data type by default store in contract storage like string so we have to use memory keyword with that to change from default to memory
+                
+                -> Wrong
+                    function func_1()
+                    {
+                        string str="jatin" //give Error
+                    }
+
+                ->Wrong(memory keyword can't use at contract level)
+                    string  memory name; //give Error
+                
+                ->Right
+                     string name;
+
+                -> Right 
+                    function func_1()
+                    {
+                        string memory str="jatin"
+                    }
+________________________________________________________________________________________________________________________________________________
+
+    ->setter & getter function
+                ->setter function  use to change the vaule of state function
+                        -> so when you call a setter function it created a transaction that need to be mined and costs gas beacuse it changes the blockchain
+
+
+                ->getter function use where we can to get the value of  non-public state variable 
+                -> if state variable  is public         -> automatically getter function created
+                                                        -> no need getter function
+                                                        -> uint public a;
+                
+                uint a;
+                function getter() public view returns (uint)
+                {
+                    return a;
+                }
+                function setter(uint b) public
+                {
+                    a=b;
+                }
+________________________________________________________________________________________________________________________________________________
+    
+    ->constructor
+                -> Exicute only once (on deploy time)
+                -> you can only create one constructor and that is optional
+                -> a default constructor always created by compiler(if you did create constructor)
+                -> mostly use for owner == msg.sender
+
+                uint a;
+                string b;
+                constructor(string memory str,uint i)
+                {
+                    a=i;
+                    b=str;
+                }
+________________________________________________________________________________________________________________________________________________
+
+    Integer
+                int  =    int256 bit(by default)  
+                uint =   (unsigned int)  
+                int8 =    0 to 2^8   
+
+                int    - 2^(n-1)     to     2^(n-1) -1
+                uint    0           to      2^(n) -1
+________________________________________________________________________________________________________________________________________________
+     
+    Comparison
+                ==, !=, >=, <=
+________________________________________________________________________________________________________________________________________________
+
+    Overfow   
+                https://peckshield.medium.com/alert-new-batchoverflow-bug-in-multiple-erc20-smart-contracts-cve-2018-10299-511067db6536
+                https://peckshield.medium.com/integer-overflow-i-e-proxyoverflow-bug-found-in-multiple-erc20-smart-contracts-14fecfba2759
+
+                pragma solidity ^0.5.0;
+                uint8 public  a=255;
+                function func_1() public
+                {
+                    a++;
+                }
+ 
+                255 + 1 =0
+
+                money transfer -> ( 255 + 1) -> current balance 0  but how ???????
+ 
+                change to -> pragma solidity ^0.8.0; -> now check ->255 + 1 =255
+
+________________________________________________________________________________________________________________________________________________
+                
+    Fixed size Array
+
+                uint[4] public arr =[1,2,3,4];
+                function getter(uint index,uint val)public
+                {
+                    arr[index]=val;
+                }
+                function get_length() public view returns(uint)
+                {
+                    return arr.length;
+                }
+                
+                
+                error
+                uint public length ;
+    		uint [length] arr; 
+    		
+    		correction
+    		uint [] arr = new uint[](length);
+________________________________________________________________________________________________________________________________________________
+
+    dynamic Array
+    		
+                uint[] public arr =[1,2,3,4]; // or uint[] public arr;
+                function getter(uint index,uint val)public
+                {
+                    arr[index]=val;
+                }
+                function push(uint item)public
+                {
+                    arr.push(item);
+                }
+                function pop()public
+                {
+                    arr.pop();
+                }
+                uint public length1 = arr.length;  // give Wrong length
+                function get_length() public view returns(uint)
+                {
+                    return arr.length;
+                }
+
+                get_length() function(Right) vs length1 (Wrong)   -> length1 store 4 value while deploying and can't change value after that
+                
+                uint[] arr_8 = new uint[](0);   // initializing with 0 ,new keyword use for object
+                
+                
+                
+                error (The push() function is not available for dynamic arrays in memory. )
+                function functionName() public view returns (uint[]) 
+                {
+	        	uint[] memory dynamicArray = new uint[](9);  // Initialize with size = 9
+	        	dynamicArray.push(2);
+		}
+		
+		correction
+		function functionName() public view returns (uint[]) 
+                {
+	        	uint[] memory dynamicArray = new uint[](9);  // nitialize with size = 9
+	        	dynamicArray[8]=2;
+		}
+
+________________________________________________________________________________________________________________________________________________
+
+    ByteArray
+                
+                bytes3 public b1;
+                bytes3 public b2;
+                bytes1 public b3;
+                function setter()public
+                {
+                    b1 = "abc";
+                    b2 =  "a";
+                    b3 =  "A";
+                }
+                function get_length() public view returns(uint,uint,uint)
+                {
+                    return (b1.length ,b2.length,b3.length);
+                }
+                
+
+                Key Points:
+                    Byte array can't be modified
+                    padding of 0 is added in the end if the value(by which the Array is Initilize) does not occupy the full space  
+                            -> "abc"  == bytes3: 0x616263   -> 3 byte = 3*8 bits = 24 bits  =24/4 Hexadecimal =6 Hexadecimal
+                            -> "a"    == bytes3: 0x610000
+                            -> "A"    == bytes3: 0x41
+
+
+                    1 byte =8 bits
+                    1 Hexadecimal digit = 4 bits
+                    Everything that will be store in ByteArray will be in the form of Hexadecimal digits
+                    https://www.rapidtables.com/code/text/ascii-table.html
+
+                
+________________________________________________________________________________________________________________________________________________
+
+    Fixed size byte array vs dynamic size byte array
+
+                Fixed size byte array                      bytes1,bytes2,....bytes32
+                dynamic size byte array                  use bytes (instead of using bytes[])
+
+                bytes public b1 ="abc";
+                function push() public
+                {
+                    b1.push('a');
+                }
+                function get_element(uint index) public view returns(bytes1)
+                {
+                return b1[index];
+                }
+                function get_length() public view returns(uint)
+                {
+                    return b1.length;
+                }
+
+
+________________________________________________________________________________________________________________________________________________
+
+    loops
+                funtion loop() public
+                {
+                    for(uint i= 0;condition;i++)
+                    {
+
+                    }
+
+                    while(condition)
+                    {
+
+                    }
+
+                    do
+                    {
+
+                    }while(condition)
+                }
+
+________________________________________________________________________________________________________________________________________________
+
+    if else 
+
+                function check(uint a,uint b) public view returns (string memory)
+                {
+                    string memory str;
+                    if(a>b)
+                    {
+                        str ="a>b"; 
+                    }
+                    else if (a==b)
+                    {
+                        str ="a=b";
+                    }
+                    else
+                    {
+                        str ="a<b";
+                    }
+                    return str;
+                }
+
+________________________________________________________________________________________________________________________________________________
+
+    bool 
+            bool public a; //by default false
+________________________________________________________________________________________________________________________________________________
+
+    structure 
+
+        can create structure inside or outside of contract both -> outside advantage : we can use struct in multiple contracts
+                struct book
+                {
+                    uint pages;
+                    string name;
+                    //bool tf;
+                    //bytes b1;
+                }
+                contract c1
+                {
+                    book public s1;
+                    constructor(uint a, string memory str)
+                    {
+                        s1.pages =a;
+                        s1. name = str;
+                    }
+                    function change(uint a, string memory str) public
+                    {
+                        s1.pages =a;
+                        s1. name = str;
+                    }
+                }
+________________________________________________________________________________________________________________________________________________
+
+    Enum
+            used to define a user-defined data type that represents a finite set of possible values. 
+            It allows you to create a custom data type with a restricted set of predefined options.
+
+
+	   Don't use ;  with enum ***************************************
+
+   	   enum VoteState { Open, Closed, Cancelled } ;     // Wrong
+   	   enum VoteState { Open, Closed, Cancelled }     //   Correct
+   	   
+	   VoteState public currentState;
+
+           constructor() 
+           {
+          	currentState = VoteState.Open; // Set the initial state to Open
+    	   }
+	
+  	   function closeVote() public  
+  	   {
+           	currentState = VoteState.Closed;
+           }
+           
+	   function cancelVote() public 
+	   {
+        	currentState = VoteState.Cancelled;
+    	   }
+________________________________________________________________________________________________________________________________________________
+
+    Mapping 
+
+        struct book
+        {
+            string  name;
+            uint pages;
+
+        }
+        contract contract_1
+        {
+            mapping(uint=>book)  public map_1;
+            
+            function setter(uint pages_,string memory name_,uint key) public
+            {
+                map_1[key] = book(name_,pages_);
+            }
+            
+        }
+
+        Key Points:
+
+            Key type (in mapping)    !=     enum,mapping,dynamic array,struct
+            value                          =     Anything
+        
+        Mappings are always store in contract storage (irrespective of whether they are declared in function or not)
+
+________________________________________________________________________________________________________________________________________________
+
+storage vs memory 
+    _____________________________________________________________
+    |   storage             vs              memory               |                   
+    |                                                       	 |
+    |   hold state variable                 hold local variable  |
+    |                                                            |
+    |   consume gas                         no gas consumed 	 |
+    |                                                            |       
+    |   like compute HDD                    Like computer RAM	 |
+    |____________________________________________________________|
+
+        string [ ]  public arr =["jatin","deeshant"];
+        function func_1() view public
+        {
+            string [] memory s1 = arr;
+            s1[0]="mohit";
+        }
+
+        function func_2() public
+        {
+            string [] storage s1 = arr;
+            s1[0]="mohit";
+        }
+
+    change only when func_2 call -> memory keyword may copy of arr  -> storage pointing arr (by address so it change value)
+
+
+_____________________________________________storage___vs___memory___vs___calldata____________________________________________________________________________
+
+	Storage
+		storage is written to the blockchain
+		Any variable defined as storage will consume gas fees since it is written to the blockchain
+
+	Memory
+		Variables stored in memory are not written to the blockchain
+		These variables are temporary and will be destroyed once the function has completed
+		memory -read only + mutable
+
+	calldata
+		only valid for parameters of external contract functions
+		Any variable defined as calldata cannot be modifiable
+		calldata is more gas efficent than memory
+		Calldata - read only + Immutable
+        
+_________________________________________________________________calldata_________________________________________________________________________
+	function func_1(string calldata str)public
+	{
+		str ="jatin"; // give error -> Any variable defined as calldata cannot be modifiable
+	} 
+	
+	function func_1(string memory str)public
+	{
+		str ="jatin"; 
+	} 
+
+	use:
+		Optimize gas costs
+		Security: The calldata area is immutable, meaning that the function cannot modify the input data stored in calldata. 
+			  This helps ensure the integrity of the input data and prevents accidental or malicious modifications.
+
+________________________________________________________________________________________________________________________________________________
+
+Global variable
+            pragma solidity ^0.8.0;
+            contract ExampleContract {
+                address public owner;
+                uint256 public lastTransactionTimestamp;
+                uint256 public lastTransactionAmount;
+                uint256 public lastTransactionBlockNumber;
+
+                constructor() {
+                    owner = msg.sender;
+                }
+
+                function doSomething() public payable {
+                    lastTransactionTimestamp = block.timestamp;
+                    lastTransactionAmount = msg.value;
+                    lastTransactionBlockNumber = block.number;
+
+                    // Do something with the transaction data...
+                }
+            }
+
+
+________________________________________________________________________________________________________________________________________________
+
+    function payether() public payable
+    {
+
+    }
+    function getbalance(address i) public view returns(uint)
+    {
+        return i.balance;
+    }
+    function getbalance_of_sc() public view returns(uint)
+    {
+        return address(this).balance;
+    }
+    function transfer_ether(address payable i,uint amount) public 
+    {
+        if(amount <= address(this).balance)
+        {
+            i.transfer(amount);
+        }    
+    }
+    //transfer one account to another
+    event Transfer_event(address from, address to, uint amount);
+    function Transer_ether(address payable adr) public payable
+    {
+        adr.transfer(msg.value);
+        emit Transfer_event(msg.sender,adr,msg.value);
+    }
+_____________________________________________________________________________________________________________________________________________
+remix == outside world
+
+            Public_______vs________private_________vs_________internal__________vs_______external 
+
+outside     1                                                                               1
+
+widthin     1                        1                          1                              
+
+derived     1                                                   1                           1
+
+other       1                                                                               1
+
+external ones that do create an actual EVM message call and internal ones that do not. 
+
+
+        contract A {
+            function func_1() public pure returns(string memory)
+            {
+                return "public";
+            }
+            function func_2() private pure returns(string memory)
+            {
+                return "private";
+            }
+            function func_3() internal pure returns(string memory)
+            {
+                return "internal";
+            }
+            function func_4() external pure returns(string memory)
+            {
+                return "external";
+            }
+        }
+
+        contract B is A   //inheritance
+        {
+            string public str_1 = func_1();
+            // string public str_2 = func_2();
+            string public str_3 = func_3();
+            // string public str_4 = func_4();
+        }
+
+        contract C
+        {
+            A obj = new A();
+            string public str_1 = obj.func_1();
+            // string public str_2 = func_2();
+            // string public str_3 = func_3();
+            string public str_4 = obj.func_4();
+        }
+
+
+
+
+_________________________________________________________receive()____vs___fallback()_________________________________________________________
+
+receive() external payable{}  
+->The receive() method is used as a fallback function if Ether are sent to the contract and no calldata are provided (no function is specified)
+
+fallback() external payable{} 
+->A fallback function is a function within a smart contract that is called if no other function in the contract matches the specified function in the call. This can happen if the call has a typo or if it specifies no function at all.
+->It works, if calldata are included
+
+
+
+The keyword external says that only EOAs and other smart contracts can call this function. Functions marked with external cannot be called from within the smart contract in which they are declared.
+
+
+
+
+
+
+
+__________________________________________________________________virtual_override______________________________________________________________
+		  	    
+The virtual keyword is used in Solidity to indicate that a function in a base contract can be overridden by a function in a derived contract.
+Functions without implementation must be marked virtual
+
+In Solidity, the virtual modifier is not allowed for interface functions. Interface functions are implicitly virtual by default
+Therefore, you don't need to explicitly specify the virtual modifier for interface functions.
+But in case of abstract contract the Functions without implementation must be marked virtual 
+
+abstract contract Base_contract 
+{
+    function func_1() external view virtual returns(string memory); // ->No Implementation ->must use virtual 
+    function func_2(int a,int b) external pure returns(int)	    
+    {
+	return (a+b)*(a-b);
+    }
+    function func_3(int c) public view virtual returns(bool) // -> Implementation But owner allow to override ->may use virtual 
+    {
+    	if(c%2 == 1){return true;}
+	return false;
+    }
+}
+
+contract Child_contract is Base_contract
+{
+    string str ="Doglaban";
+    function func_1() external view virtual override returns(string memory)
+    {
+        return str;
+    }
+    function func_3(int c) public view virtual override returns(bool)
+    {
+	if(c%2 == 0){return true;}
+	return false;
+    }
+}		  	    
+__________________________________________________________________congratulation______________________________________________________________
+
+Goerli Testnet -> deprecate -> froud ->fake eth buy as real eth -> normall 0.25 goerliETH get and big sc need more goerliETH so some people selling more goerliETH like 50goerliETH so that developer can test easily
+
+
+
+1.   new contract_1(1,2) vs contract(msg.sender) vs contract(adr) 
+2.  importance of view keyword  
+3.  The push() function is not available for dynamic arrays in memory
