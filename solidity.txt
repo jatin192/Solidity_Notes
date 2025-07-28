@@ -666,6 +666,7 @@ contract Child_contract is Base_contract
 }		  	    
 __________________________________________________________________congratulation______________________________________________________________
 
+
 Goerli Testnet -> deprecate -> froud ->fake eth buy as real eth -> normall 0.25 goerliETH get and big sc need more goerliETH so some people selling more goerliETH like 50goerliETH so that developer can test easily
 
 
